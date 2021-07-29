@@ -1,4 +1,4 @@
-from random import randint, shuffle
+from random import randint, shuffle, seed
 
 from utils import UnionFind
 
@@ -49,7 +49,12 @@ def generate_exit(n, m):
         else:
             return (exit_coord, 2 * m)
 
-def generate_maze(n, m):
+def generate_maze(n, m, sd):
+    if sd is None:
+        sd = randint(0, 1000000000)
+    print('Seed:', sd)
+    seed(sd)
+    
     nodes = generate_nodes(n, m)
     maze = np.zeros((2 * n + 1, 2 * m + 1), dtype = np.int8)
     for node in nodes:
@@ -64,10 +69,5 @@ def generate_maze(n, m):
         exit2 = generate_exit(n, m)
     maze[exit1[0], exit1[1]] = 1
     maze[exit2[0], exit2[1]] = 1
-        
-    for i in range(2 * n + 1):
-        for j in range(2 * m + 1):
-            print('X' if maze[i, j] == 0 else ' ', end = '')
-        print()
-    print(maze)
+    
     return maze, exit1, exit2

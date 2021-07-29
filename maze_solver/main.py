@@ -6,7 +6,7 @@ import settings
 from maze import generate_maze
 from evolutionary import Population, _is_corner
 
-maze, exit1, exit2 = generate_maze(8, 8)
+maze, exit1, exit2 = generate_maze(settings.maze_size, settings.maze_size, settings.seed)
 pop = Population(settings.num, settings.mutation_factor, settings.predate_every, settings.patience, maze, exit1, exit2)
 plt.rcParams['toolbar'] = 'toolmanager'
 plt.ion()
@@ -45,8 +45,8 @@ fig.canvas.manager.toolbar.add_tool('NextGen', 'navigation')
 fig.canvas.manager.toolmanager.add_tool('Reset', Reset)
 fig.canvas.manager.toolbar.add_tool('Reset', 'navigation')
 
-for i in range(2*8+1):
-    for j in range(2*8+1):
+for i in range(2 * settings.maze_size + 1):
+    for j in range(2 * settings.maze_size + 1):
         if _is_corner(maze, i, j):
             plt.plot(j, i, marker='.', color='green')
 
