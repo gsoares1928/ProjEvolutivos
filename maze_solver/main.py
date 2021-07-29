@@ -7,7 +7,7 @@ from maze import generate_maze
 from evolutionary import Population, _is_corner
 
 maze, exit1, exit2 = generate_maze(settings.maze_size, settings.maze_size, settings.seed)
-pop = Population(settings.num, settings.mutation_factor, settings.predate_every, settings.patience, maze, exit1, exit2)
+pop = Population(settings.num, settings.mutation_factor, settings.predate_every, maze, exit1, exit2)
 plt.rcParams['toolbar'] = 'toolmanager'
 plt.ion()
 
@@ -27,28 +27,32 @@ class Reset(ToolBase):
         clean_up = pop.plot(plt)
 
 class NextGen(ToolBase):
-    description = 'Advance to the next generation'
+    
+    def __init__(self, *args, **kwargs):
+        self.skip_cnt = kwargs.pop('skip_cnt', 1)
+        if self.skip_cnt == 1:
+            self.description = 'Advance to the next generation'
+        else:
+            self.description = f'Advance {self.skip_cnt} generations'
+        super().__init__(*args, **kwargs)
     
     def trigger(self, *args, **kwargs):
         global clean_up
         if clean_up is not None:
             for obj in clean_up:
                 obj.remove()
-            for i in range(10):
+            for i in range(self.skip_cnt):
                 pop.next_gen()
         else:
             pop.generate()
         clean_up = pop.plot(plt)
 
-fig.canvas.manager.toolmanager.add_tool('NextGen', NextGen)
-fig.canvas.manager.toolbar.add_tool('NextGen', 'navigation')
+fig.canvas.manager.toolmanager.add_tool('Next', NextGen, skip_cnt = 1)
+fig.canvas.manager.toolbar.add_tool('Next', 'navigation')
+fig.canvas.manager.toolmanager.add_tool('Next 10', NextGen, skip_cnt = 10)
+fig.canvas.manager.toolbar.add_tool('Next 10', 'navigation')
 fig.canvas.manager.toolmanager.add_tool('Reset', Reset)
 fig.canvas.manager.toolbar.add_tool('Reset', 'navigation')
-
-for i in range(2 * settings.maze_size + 1):
-    for j in range(2 * settings.maze_size + 1):
-        if _is_corner(maze, i, j):
-            plt.plot(j, i, marker='.', color='green')
 
 plt.imshow(maze)
 plt.show(block=True)

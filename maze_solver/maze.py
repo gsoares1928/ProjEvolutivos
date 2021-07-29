@@ -49,25 +49,25 @@ def generate_exit(n, m):
         else:
             return (exit_coord, 2 * m)
 
-def generate_maze(n, m, sd):
+def generate_maze(n, m, sd = None):
     if sd is None:
         sd = randint(0, 1000000000)
     print('Seed:', sd)
     seed(sd)
     
     nodes = generate_nodes(n, m)
-    maze = np.zeros((2 * n + 1, 2 * m + 1), dtype = np.int8)
+    maze = np.zeros((2 * n + 1, 2 * m + 1), dtype = bool)
     for node in nodes:
-        maze[2 * node.x + 1, 2 * node.y + 1] = 1
+        maze[2 * node.x + 1, 2 * node.y + 1] = True
         if node.open_down:
-            maze[2 * node.x + 2, 2 * node.y + 1] = 1
+            maze[2 * node.x + 2, 2 * node.y + 1] = True
         if node.open_right:
-            maze[2 * node.x + 1, 2 * node.y + 2] = 1
+            maze[2 * node.x + 1, 2 * node.y + 2] = True
     
     exit1, exit2 = generate_exit(n, m), generate_exit(n, m)
     while exit1 == exit2:
         exit2 = generate_exit(n, m)
-    maze[exit1[0], exit1[1]] = 1
-    maze[exit2[0], exit2[1]] = 1
+    maze[exit1[0], exit1[1]] = True
+    maze[exit2[0], exit2[1]] = True
     
     return maze, exit1, exit2
