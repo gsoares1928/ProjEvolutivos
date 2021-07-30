@@ -3,6 +3,7 @@ import numpy as np
 rng = np.random.default_rng()
 
 class UnionFind:
+    '''Implementation of the union-find data structure.'''
     def __init__(self, size):
         self.parent = [-1] * size
 
@@ -21,9 +22,11 @@ class UnionFind:
             self.parent[x] = y
 
 def random_move():
+    '''Return a random move.'''
     return 'udlr'[rng.integers(4)]
 
 def is_inverse(move1, move2):
+    '''Returns True if move2 is the move in the opposite direction of move1.'''
     if move1 == 'u' and move2 == 'd':
         return True
     if move1 == 'd' and move2 == 'u':
@@ -35,6 +38,7 @@ def is_inverse(move1, move2):
     return False
 
 def is_corner(maze, x, y):
+    '''Returns True is (x, y) is a corner in maze.'''
     if (
         x == 0 
         or y == 0 

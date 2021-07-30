@@ -4,11 +4,15 @@ import utils
 import settings
 
 class Individual:
+    '''Represents a individual in the genetic algorithm, its gene is the sequence of movements starting from one of the maze exits.'''
     def __init__(self, seq = None):
         self.seq = seq if seq is not None else [utils.random_move()]
         self.path = None
 
     def calc_path(self, maze, exit1, exit2, markers = None):
+        '''Computes the path in the maze starting from exit1 and possibly arriving at exit2.
+        The path will be stored in the member attribute path.
+        Corners found along the path will be stored in markers'''
         if self.path is not None:
             return
 
@@ -41,6 +45,9 @@ class Individual:
             markers[x, y] = False
 
     def fitness(self, maze, exit1, exit2):
+        '''Computes the fitness of this individual.
+        The fitness is defined by 2 * (number of unique nodes along the path) - (distance from the last node of the path to exit2).
+        Unless the distance is zero, in this case the fitness is infinity.'''
         fit_val = 0
         vis = np.zeros_like(maze)
         for x, y in self.path:
@@ -53,11 +60,16 @@ class Individual:
         return fit_val
 
     def combine(self, other):
+        '''Combine this individual with other.
+        The new sequence of moves will be a prefix of the sequence of other + a suffix of the current sequence.'''
         k = int(min(len(self.seq), len(other.seq)) * utils.rng.random())
         self.seq = other.seq[:k] + self.seq[k:]
         self.path = None
 
     def mutate(self, mutation_factor, advance_only = False):
+        '''Mutate this individual.
+        The current sequence may decrease in length, increase in length or have its last element changed.
+        If advance_only is True, the sequence may only increase.'''
         if len(self.seq) > 0 and utils.rng.random() < mutation_factor[2] and not advance_only:
             del self.seq[-1]
         if len(self.seq) == 0 or utils.rng.random() < mutation_factor[0]:
@@ -69,12 +81,14 @@ class Individual:
         self.path = None
 
 class Population:
+    '''Represents a population in the genetic algorithm.'''
     def __init__(self, maze, exit1, exit2):
         self.maze = maze
         self.exit1 = exit1
         self.exit2 = exit2
 
     def generate(self):
+        '''Creates a initial population.'''
         self.gen_number = 0
         self.pop = [Individual() for i in range(settings.num)]
         self.last_fitness = -float('inf')
@@ -82,6 +96,7 @@ class Population:
         self.pop_fitness = None
 
     def next_gen(self):
+        '''Advances the population to the next generation.'''
         marked_maze = self.maze & self.markers
         new_markers = np.ones_like(self.markers)
         for i, ind in enumerate(self.pop):
@@ -113,6 +128,7 @@ class Population:
                     self.pop[i].mutate(settings.mutation_factor, advance_only = True)
 
     def plot(self, plt):
+        '''Displays the current population in plt.'''
         if self.pop_fitness is None:
             return []
         all_nodes = []

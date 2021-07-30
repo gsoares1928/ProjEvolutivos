@@ -49,6 +49,7 @@ def generate_exit(n, m):
             return (exit_coord, 2 * m)
 
 def generate_maze(n, m, sd = None):
+    '''Generate a maze of size (2*n+1)x(2*m+1) using the seed sd.'''
     if sd is None:
         sd = randint(0, 1000000000)
     print('Seed:', sd)

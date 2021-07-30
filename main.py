@@ -27,7 +27,6 @@ class Reset(ToolBase):
         clean_up = pop.plot(plt)
 
 class NextGen(ToolBase):
-
     def __init__(self, *args, **kwargs):
         self.skip_cnt = kwargs.pop('skip_cnt', 1)
         if self.skip_cnt == 1:
