@@ -16,3 +16,5 @@ Requerimentos:
 - python 3.9
 - NumPy (para instalar `pip install numpy`)
 - Matplotlib (para instalar `pip install matplotlib`)
+
+Vídeo: https://drive.google.com/file/d/1Vtk1zbkvDV9KpnLH9EiV1LCtJZFwEj4b/view?usp=sharing
