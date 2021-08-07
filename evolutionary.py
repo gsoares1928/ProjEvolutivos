@@ -72,10 +72,10 @@ class Individual:
         If advance_only is True, the sequence may only increase.'''
         if len(self.seq) > 0 and utils.rng.random() < mutation_factor[2] and not advance_only:
             del self.seq[-1]
-        if len(self.seq) == 0 or utils.rng.random() < mutation_factor[0]:
-            self.seq.append(utils.random_move())
         if len(self.seq) > 0 and utils.rng.random() < mutation_factor[1] and not advance_only:
             self.seq[-1] = utils.random_move()
+        if len(self.seq) == 0 or utils.rng.random() < mutation_factor[0]:
+            self.seq.append(utils.random_move())
         if len(self.seq) > 1 and utils.is_inverse(self.seq[-2], self.seq[-1]):
             self.seq[-1] = self.seq[-2]
         self.path = None
@@ -94,6 +94,7 @@ class Population:
         self.last_fitness = -float('inf')
         self.markers = np.ones_like(self.maze)
         self.pop_fitness = None
+        self.history = []
 
     def next_gen(self):
         '''Advances the population to the next generation.'''
@@ -110,6 +111,9 @@ class Population:
         self.gen_number += 1
         top = max(round(settings.num * settings.elite_ratio), 1)
         avg_path = round(sum(map(lambda ind: len(ind.path), self.pop)) / settings.num)
+        avg_fitness = sum(self.pop_fitness) / settings.num
+        avg_fitness_best = sum(map(lambda i: self.pop_fitness[i], best[:top])) / top
+        self.history.append((avg_path, avg_fitness, avg_fitness_best))
 
         for i in best[top:]:
             j = best[utils.rng.integers(top)]
@@ -127,26 +131,34 @@ class Population:
                 for _ in range(avg_path):
                     self.pop[i].mutate(settings.mutation_factor, advance_only = True)
 
-    def plot(self, plt):
-        '''Displays the current population in plt.'''
+    def plot(self, ax_maze, ax_graph):
+        '''Displays the current population in ax_maze and the history in ax_graph.'''
         if self.pop_fitness is None:
             return []
         all_nodes = []
         best = np.argmax(self.pop_fitness)
         if self.pop_fitness[best] == float('inf'):
-            plt.title(f'Generation: {self.gen_number}')
+            ax_maze.set_title(f'Generation: {self.gen_number}')
             for x, y in self.pop[best].path:
-                node = plt.plot(y, x, marker='.', color='green')
+                node = ax_maze.plot(y, x, marker='.', color='green')
                 all_nodes.extend(node)
         else:
-            plt.title(f'Generation: {self.gen_number} Best fitness: {self.pop_fitness[best]:.3f}')
+            ax_maze.set_title(f'Generation: {self.gen_number} Best fitness: {self.pop_fitness[best]:.3f}')
             for x in range(self.markers.shape[0]):
                 for y in range(self.markers.shape[1]):
                     if not self.markers[x, y]:
-                        node = plt.plot(y, x, marker='x', color='red')
+                        node = ax_maze.plot(y, x, marker='x', color='red')
                         all_nodes.extend(node)
             for ind in self.pop:
                 x, y = ind.last_pos
-                node = plt.plot(y, x, marker='1', color='blue')
+                node = ax_maze.plot(y, x, marker='1', color='blue')
                 all_nodes.extend(node)
+            
+            ax_graph.clear()
+            gen_x = np.arange(self.gen_number)
+            avg_path, avg_fitness, avg_fitness_best = np.array(self.history).T
+            ax_graph.plot(gen_x, avg_path, label = 'Average Path')
+            ax_graph.plot(gen_x, avg_fitness, label = 'Average Fitness')
+            ax_graph.plot(gen_x, avg_fitness_best, label = 'Average Best Fitness')
+            ax_graph.legend()
         return all_nodes

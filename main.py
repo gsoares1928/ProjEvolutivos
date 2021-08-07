@@ -11,7 +11,7 @@ pop = Population(maze, exit1, exit2)
 plt.rcParams['toolbar'] = 'toolmanager'
 plt.ion()
 
-fig, ax = plt.subplots()
+fig, (ax_maze, ax_graph) = plt.subplots(1, 2)
 
 clean_up = None
 
@@ -24,7 +24,7 @@ class Reset(ToolBase):
             for obj in clean_up:
                 obj.remove()
         pop.generate()
-        clean_up = pop.plot(plt)
+        clean_up = pop.plot(ax_maze, ax_graph)
 
 class NextGen(ToolBase):
     def __init__(self, *args, **kwargs):
@@ -44,7 +44,7 @@ class NextGen(ToolBase):
                 pop.next_gen()
         else:
             pop.generate()
-        clean_up = pop.plot(plt)
+        clean_up = pop.plot(ax_maze, ax_graph)
 
 fig.canvas.manager.toolmanager.add_tool('Next', NextGen, skip_cnt = 1)
 fig.canvas.manager.toolbar.add_tool('Next', 'navigation')
@@ -53,5 +53,5 @@ fig.canvas.manager.toolbar.add_tool('Next 10', 'navigation')
 fig.canvas.manager.toolmanager.add_tool('Reset', Reset)
 fig.canvas.manager.toolbar.add_tool('Reset', 'navigation')
 
-plt.imshow(maze)
+ax_maze.imshow(maze)
 plt.show(block=True)
